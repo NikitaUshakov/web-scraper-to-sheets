@@ -28,7 +28,7 @@
         CsvExporter          GoogleSheetsExporter
         (stdlib, offline)    (gspread, production)
               │                     │
-         output.csv         Google Таблица (Sheets API)
+      output_demo.csv       Google Таблица (Sheets API)
 ```
 
 **Модули:**
@@ -89,6 +89,6 @@ print(f"Таблица обновлена: {url}")
 ## Стек
 
 - **Python 3.10+** — `html.parser`, `csv`, `dataclasses` (stdlib, демо)
-- **httpx** — асинхронный HTTP-клиент для production-скачивания
+- **httpx** — HTTP-клиент (синхронный API) для production-скачивания
 - **gspread + google-auth** — запись в Google Sheets через service account
 - **cron / systemd** — планировщик

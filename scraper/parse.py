@@ -30,6 +30,8 @@ class _ProductParser(HTMLParser):
         self._current: Optional[dict] = None
         # какое поле сейчас собираем
         self._capture: Optional[str] = None
+        # глубина вложенных <div> внутри карточки (чтобы не закрыть её раньше времени)
+        self._depth: int = 0
 
     # ------------------------------------------------------------------ #
     #  Вспомогательные методы
@@ -55,17 +57,23 @@ class _ProductParser(HTMLParser):
     def handle_starttag(self, tag: str, attrs: list) -> None:
         cls = self._class_of(attrs)
 
-        if tag == "div" and cls == "product-card":
-            # начинаем новую карточку
-            self._current = {
-                "name": "",
-                "price": 0.0,
-                "currency": "₽",
-                "availability": "",
-                "category": "",
-                "url": "",
-            }
-            return
+        if tag == "div":
+            if cls == "product-card" and self._current is None:
+                # начинаем новую карточку
+                self._current = {
+                    "name": "",
+                    "price": 0.0,
+                    "currency": "₽",
+                    "availability": "",
+                    "category": "",
+                    "url": "",
+                }
+                self._depth = 0
+                return
+            if self._current is not None:
+                # вложенный <div> внутри карточки — считаем глубину
+                self._depth += 1
+                return
 
         if self._current is None:
             return  # вне карточки — пропускаем
@@ -86,8 +94,12 @@ class _ProductParser(HTMLParser):
             self._capture = None
 
     def handle_endtag(self, tag: str) -> None:
-        # закрываем карточку
         if tag == "div" and self._current is not None:
+            if self._depth > 0:
+                # закрылся вложенный div, а не сама карточка
+                self._depth -= 1
+                self._capture = None
+                return
             d = self._current
             # защита от пустых/неполных карточек
             if d["name"]:
@@ -112,7 +124,7 @@ class _ProductParser(HTMLParser):
             return
         field = self._capture
         if field == "price":
-            # убираем пробелы-разделители тысяч, заменяем запятую на точку
+            # убираем неразрывные/обычные пробелы-разделители тысяч, запятую → точка
             cleaned = text.replace(" ", "").replace(" ", "").replace(",", ".")
             try:
                 self._current["price"] = float(cleaned)

@@ -69,11 +69,11 @@ class GoogleSheetsExporter(Exporter):
         self,
         creds_file: str | None = None,
         spreadsheet_id: str | None = None,
-        worksheet_name: str = "Sheet1",
+        worksheet_name: str | None = None,
     ) -> None:
         self.creds_file = creds_file or os.environ["GOOGLE_CREDS_FILE"]
         self.spreadsheet_id = spreadsheet_id or os.environ["SPREADSHEET_ID"]
-        self.worksheet_name = worksheet_name
+        self.worksheet_name = worksheet_name or os.environ.get("WORKSHEET_NAME", "Sheet1")
 
     def _get_client(self):
         """Lazy-импорт gspread: библиотека нужна только при реальной выгрузке."""
@@ -85,10 +85,8 @@ class GoogleSheetsExporter(Exporter):
                 "Установите зависимости: pip install gspread google-auth"
             ) from e
 
-        scopes = [
-            "https://spreadsheets.google.com/feeds",
-            "https://www.googleapis.com/auth/drive",
-        ]
+        # Узкий scope: доступ только к таблицам, не ко всему Google Drive
+        scopes = ["https://www.googleapis.com/auth/spreadsheets"]
         creds = Credentials.from_service_account_file(self.creds_file, scopes=scopes)
         return gspread.authorize(creds)
 

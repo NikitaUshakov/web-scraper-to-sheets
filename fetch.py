@@ -30,7 +30,6 @@ def fetch_and_parse(url: str, timeout: float = 15.0) -> list[Product]:
 
 if __name__ == "__main__":
     import sys
-    import json
 
     if len(sys.argv) < 2:
         print("Использование: python3 fetch.py <URL>")
