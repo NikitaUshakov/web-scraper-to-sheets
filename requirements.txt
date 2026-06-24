@@ -1,0 +1,4 @@
+# Зависимости для production-режима (offline-демо их НЕ требует)
+httpx>=0.27          # HTTP-клиент для скачивания страниц
+gspread>=6.0         # Google Sheets API wrapper
+google-auth>=2.29    # Аутентификация через service account
