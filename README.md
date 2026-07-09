@@ -1,5 +1,7 @@
 # Парсер сайта → выгрузка в Google Sheets / Excel по расписанию
 
+![Web scraper to Sheets demo](docs/screenshot.png)
+
 ## Задача
 
 Клиент хочет собирать данные с каталога (товары, цены, наличие) и видеть их
